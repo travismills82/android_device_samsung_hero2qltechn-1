@@ -48,8 +48,8 @@ jobs:
             #tar -xJf twrp.tar.xz --directory twrp/ && rm twrp.tar.xz
             #cd twrp/
 
-            git clone https://github.com/rokibhasansagar/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} --single-branch device/${VENDOR}/${CODENAME}
-            rm -f device/${VENDOR}/${CODENAME}/vendorsetup.sh
+            #git clone https://github.com/rokibhasansagar/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} --single-branch device/${VENDOR}/${CODENAME}
+            #rm -f device/${VENDOR}/${CODENAME}/vendorsetup.sh
 
             # Local manifests hack. Some builds fail if the file path does not exist.
             #mkdir -p .repo/local_manifests && cat \<<EOF > .repo/local_manifests/roomservice.xml
