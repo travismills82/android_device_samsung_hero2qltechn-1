@@ -30,7 +30,7 @@ jobs:
             mkdir twrp && cd twrp
 
             echo -e "\n Initialize repo Command"
-            repo init -q -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git -b "twrp-6.0" --depth 1
+            repo init -q -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git -b "twrp-8.0" --depth 1
             echo -e "\n Removing Unimportant Darwin-specific Files from syncing"
             cd .repo/manifests
             sed -i '/darwin/d' default.xml
@@ -52,7 +52,7 @@ jobs:
             /tmp/act.sh & repo sync -c -q --force-sync --no-clone-bundle --optimized-fetch --prune --no-tags -j$(nproc --all)
 
             #git clone https://github.com/rokibhasansagar/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} --single-branch device/${VENDOR}/${CODENAME}
-            #rm -f device/${VENDOR}/${CODENAME}/vendorsetup.sh
+            rm -f device/${VENDOR}/${CODENAME}/vendorsetup.sh
 
             rm -rf bootable/recovery && git clone https://github.com/TeamWin/android_bootable_recovery -b android-9.0 --depth 1 bootable/recovery
 
