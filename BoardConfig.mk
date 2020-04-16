@@ -38,6 +38,8 @@ TARGET_KERNEL_DEVICE_DEFCONFIG := device_hero2qlte_chnzc
 TARGET_PREBUILT_KERNEL := $(DEVICE_TREE)/Image.gz
 TARGET_PREBUILT_DTB := $(DEVICE_TREE)/dtb.img
 
+BOARD_KERNEL_SEPARATED_DT := true
+
 # Boot image
 BOARD_KERNEL_CMDLINE := console=null androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 cma=24M@0-0xffffffff rcupdate.rcu_expedited=1
 BOARD_KERNEL_BASE := 0x80000000
