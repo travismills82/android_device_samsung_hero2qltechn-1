@@ -4,76 +4,26 @@ jobs:
     docker:
       - image: fr3akyphantom/droid-builder:latest
     environment:
+      MANIFEST_BRANCH: 'twrp-6.0'
+      # PBRP_BRANCH: # optional, if not default 'android-9.0', define other bootable_recovery branch
+      VERSION: '2.9.1'
       VENDOR: 'samsung'
-      CODENAME: 'hero2qltechn' 
-    working_directory: /home/builder/work
+      CODENAME: 'hero2qltechn'
+      BUILD_LUNCH: 'omni_hero2qltechn-eng'
+      TEST_BUILD: 'true'
+      PB_GO: 'true'
+      # EXTRA_CMD: # some required commands like `ls` after `repo sync`, write in single line
+    working_directory: /home/builder/pitchblack
     steps:
       - run:
           name: AIO Build
           command: |
-            echo -en "Current directory is - " && pwd
-
-            echo "Set GitAuth Infos too"
-            git config --global user.email "rokibhasansagar2014@outlook.com" 
-            git config --global user.name "rokibhasansagar" 
+            echo "Set GitAuth Infos"
+            git config --global user.email $GitHubMail
+            git config --global user.name $GitHubName
             git config --global color.ui true
-
-            # Basic trick to ping every 5 minutes in the background
-            cat \<< EOF > /tmp/act.sh
-            #!/bin/bash
-            while true; do
-              echo -e "\n" && sleep 300
-            done
-            EOF
-            chmod a+x /tmp/act.sh
-
-            mkdir twrp && cd twrp
-
-            echo -e "\n Initialize repo Command"
-            repo init -q -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git -b "twrp-8.0" --depth 1
-            echo -e "\n Removing Unimportant Darwin-specific Files from syncing"
-            cd .repo/manifests
-            sed -i '/darwin/d' default.xml
-            ( find . -type f -name '*.xml' | xargs sed -i '/darwin/d' ) || true
-            git commit -a -m "Magic" || true
-            cd ../
-            sed -i '/darwin/d' manifest.xml
-            cd ../
-
-            # Local manifests hack. Some builds fail if the file path does not exist.
-            mkdir -p .repo/local_manifests && cat \<<EOF > .repo/local_manifests/hero2qltechn.xml
-            <?xml version="1.0" encoding="UTF-8"?>
-            <manifest>
-            	<project path="device/samsung/hero2qltechn" name="rokibhasansagar/twrp_android_device_samsung_hero2qltechn" remote="github" revision="android-6.0" />
-            </manifest>
-            EOF
-
-            echo -e "\n Syncing it up! Wait for a few minutes..."
-            /tmp/act.sh & repo sync -c -q --force-sync --no-clone-bundle --optimized-fetch --prune --no-tags -j$(nproc --all)
-
-            #git clone https://github.com/rokibhasansagar/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} --single-branch device/${VENDOR}/${CODENAME}
-            rm -f device/${VENDOR}/${CODENAME}/vendorsetup.sh
-
-            rm -rf bootable/recovery && git clone https://github.com/TeamWin/android_bootable_recovery -b android-9.0 --depth 1 bootable/recovery
-
-            echo "Starting Build"
-            export ALLOW_MISSING_DEPENDENCIES=true
-            source build/envsetup.sh
-            lunch omni_${CODENAME}-eng
-
-            echo "Starting the Build Process"
-            echo -en "Current directory is - " && pwd
-            /tmp/act.sh & make -j$(nproc --all) recoveryimage
-
-            echo -en "Current directory is - " && pwd
-            export version=$(cat bootable/recovery/variables.h | grep "define TW_MAIN_VERSION_STR" | cut -d '"' -f2) && echo "TWRP $version"
-            export nowTime=$(date +%Y%m%d-%H%M) && echo $nowTime
-            mkdir gh_release
-            cp /home/builder/work/twrp/out/target/product/${CODENAME}/recovery.img /home/builder/work/twrp/gh_release/TWRP-$version-${CODENAME}-$nowTime-Unofficial.img
-            cd /home/builder/work/twrp/
-            wput gh_release/TWRP-$version-${CODENAME}-$nowTime-Unofficial.img ftp://"$FTPUser":"$FTPPass"@"$FTPHost"//TWBuild-$version-$nowTime/
-            ls -la gh_release/ && echo "Releasing..."
-            ghr -t ${GitOAUTHToken} -n "Test Release for ${CODENAME}" -b "TWRP $(echo $version)" -c ${CIRCLE_SHA1} -delete $version gh_release/
+            wget -q https://raw.githubusercontent.com/PitchBlackRecoveryProject/vendor_pb/pb/build.sh
+            source build.sh
 workflows:
   version: 2
   build_and_test:
@@ -81,5 +31,5 @@ workflows:
       - build:
           filters:
             branches:
-              only: 'android-6.0'
+              only: 'pbrp-6.0'
           context: personal-envs
