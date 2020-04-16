@@ -76,8 +76,8 @@ TW_USE_NEW_MINADBD := true
 
 # Encryption support
 TW_INCLUDE_CRYPTO := true
-TW_INCLUDE_FBE := true
-TW_INCLUDE_CRYPTO_FBE := true
+#TW_INCLUDE_FBE := true
+#TW_INCLUDE_CRYPTO_FBE := true
 # Disable Qualcomm and Samsung encryption as we are missing msm8996 keystore support
 #TW_INCLUDE_CRYPTO_SAMSUNG := true
 TARGET_HW_DISK_ENCRYPTION := true
