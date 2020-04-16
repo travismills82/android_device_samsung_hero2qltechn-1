@@ -12,10 +12,12 @@ jobs:
           name: AIO Build
           command: |
             echo -en "Current directory is - " && pwd
+
             echo "Set GitAuth Infos too"
             git config --global user.email "rokibhasansagar2014@outlook.com" 
             git config --global user.name "rokibhasansagar" 
             git config --global color.ui true
+
             # Basic trick to ping every 5 minutes in the background
             cat \<< EOF > /tmp/act.sh
             #!/bin/bash
@@ -24,29 +26,50 @@ jobs:
             done
             EOF
             chmod a+x /tmp/act.sh
-            mkdir twrp
-            echo "Downloading TWRP Source"
-            TWRP_SOURCE="https://github.com/PhantomZone54/twrp_sources_norepo/releases/download/v3.3.1-20200222/MinimalOmniRecovery-twrp-6.0-norepo-20200222.tar.xz"
-            /tmp/act.sh & wget -q ${TWRP_SOURCE} -O twrp.tar.xz
-            tar -xJf twrp.tar.xz --directory twrp/ && rm twrp.tar.xz
-            cd twrp/
+
+            mkdir twrp && cd twrp
+
+            echo -e "\n Initialize repo Command"
+            repo init -q -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git -b "twrp-6.0"--depth 1
+            echo -e "\n Removing Unimportant Darwin-specific Files from syncing"
+            cd .repo/manifests
+            sed -i '/darwin/d' default.xml
+            ( find . -type f -name '*.xml' | xargs sed -i '/darwin/d' ) || true
+            git commit -a -m "Magic" || true
+            cd ../
+            sed -i '/darwin/d' manifest.xml
+            cd ../
+            echo -e "\n Syncing it up! Wait for a few minutes..."
+            /tmp/act.sh & repo sync -c -q --force-sync --no-clone-bundle --optimized-fetch --prune --no-tags -j$(nproc --all)
+
+            #echo "Downloading TWRP Source"
+            #TWRP_SOURCE="https://github.com/PhantomZone54/twrp_sources_norepo/releases/download/v3.3.1-20200222/MinimalOmniRecovery-twrp-6.0-norepo-20200222.tar.xz"
+            #/tmp/act.sh & wget -q ${TWRP_SOURCE} -O twrp.tar.xz
+            #tar -xJf twrp.tar.xz --directory twrp/ && rm twrp.tar.xz
+            #cd twrp/
+
             git clone https://github.com/rokibhasansagar/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} --single-branch device/${VENDOR}/${CODENAME}
             rm -f device/${VENDOR}/${CODENAME}/vendorsetup.sh
+
             # Local manifests hack. Some builds fail if the file path does not exist.
-            mkdir -p .repo/local_manifests && cat \<<EOF > .repo/local_manifests/roomservice.xml
-            <?xml version="1.0" encoding="UTF-8"?>
-            <manifest>
-            <!-- dummy -->
-            </manifest>
-            EOF
+            #mkdir -p .repo/local_manifests && cat \<<EOF > .repo/local_manifests/roomservice.xml
+            #<?xml version="1.0" encoding="UTF-8"?>
+            #<manifest>
+            #<!-- dummy -->
+            #</manifest>
+            #EOF
+
             rm -rf bootable/recovery && git clone https://github.com/TeamWin/android_bootable_recovery -b android-9.0 --depth 1 bootable/recovery
+
             echo "Starting Build"
             export ALLOW_MISSING_DEPENDENCIES=true
             source build/envsetup.sh
             lunch omni_${CODENAME}-eng
+
             echo "Starting the Build Process"
             echo -en "Current directory is - " && pwd
             /tmp/act.sh & make -j$(nproc --all) recoveryimage
+
             echo -en "Current directory is - " && pwd
             export version=$(cat bootable/recovery/variables.h | grep "define TW_MAIN_VERSION_STR" | cut -d '"' -f2) && echo "TWRP $version"
             export nowTime=$(date +%Y%m%d-%H%M) && echo $nowTime
