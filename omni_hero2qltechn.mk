@@ -22,9 +22,18 @@ PRODUCT_NAME := omni_hero2qltechn
 PRODUCT_BRAND := samsung
 PRODUCT_MANUFACTURER := samsung
 
+ifeq ($(TARGET_PREBUILT_KERNEL),)
+LOCAL_KERNEL := device/samsung/hero2qltechn/Image.gz
+else
 LOCAL_KERNEL := $(TARGET_PREBUILT_KERNEL)
+endif
+
+ifeq ($(TARGET_PREBUILT_DTB),)
+LOCAL_KERNEL_DTB := device/samsung/hero2qltechn/dtb.img
+else
 LOCAL_KERNEL_DTB := $(TARGET_PREBUILT_DTB)
+endif
 
 PRODUCT_COPY_FILES += \
-    $(LOCAL_KERNEL):kernel \
-    $(LOCAL_KERNEL_DTB):dt.img
+	$(LOCAL_KERNEL):kernel \
+	$(LOCAL_KERNEL_DTB):dt.img
