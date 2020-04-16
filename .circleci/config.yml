@@ -4,7 +4,7 @@ jobs:
     docker:
       - image: fr3akyphantom/droid-builder:latest
     environment:
-      MANIFEST_BRANCH: 'twrp-6.0'
+      MANIFEST_BRANCH: 'twrp-8.1'
       # PBRP_BRANCH: # optional, if not default 'android-9.0', define other bootable_recovery branch
       VERSION: '2.9.1'
       VENDOR: 'samsung'
@@ -12,6 +12,7 @@ jobs:
       BUILD_LUNCH: 'omni_hero2qltechn-eng'
       TEST_BUILD: 'true'
       PB_GO: 'true'
+      PB_ENGLISH: 'true'
       # EXTRA_CMD: # some required commands like `ls` after `repo sync`, write in single line
     working_directory: /home/builder/pitchblack
     steps:
@@ -32,5 +33,5 @@ workflows:
       - build:
           filters:
             branches:
-              only: 'pbrp-6.0'
+              only: 'pbrp-8.1'
           context: personal-envs
