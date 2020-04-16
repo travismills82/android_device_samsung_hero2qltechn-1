@@ -71,7 +71,7 @@ $(INSTALLED_RECOVERYIMAGE_TARGET): $(MKBOOTIMG) $(recovery_ramdisk) $(recovery_k
 	@echo "----- Making recovery image ------"
 	$(hide) $(MKBOOTIMG) $(INTERNAL_RECOVERYIMAGE_ARGS) $(INTERNAL_MKBOOTIMG_VERSION_ARGS) $(BOARD_MKBOOTIMG_ARGS) --output $@ --id > $(RECOVERYIMAGE_ID_FILE)
 	@echo "----- Lying about SEAndroid state to Samsung bootloader ------"
-        $(hide) echo -n "SEANDROIDENFORCE" >> $@
+	$(hide) echo -n "SEANDROIDENFORCE" >> $@
 	$(hide) $(call assert-max-image-size,$@,$(BOARD_RECOVERYIMAGE_PARTITION_SIZE),raw)
 	$(hide) tar -C $(PRODUCT_OUT) -H ustar -c recovery.img > $(PRODUCT_OUT)/recovery.tar
 	@echo "Made Odin flashable recovery tar: $(PRODUCT_OUT)/recovery.tar"
