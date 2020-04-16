@@ -39,6 +39,15 @@ jobs:
             cd ../
             sed -i '/darwin/d' manifest.xml
             cd ../
+
+            # Local manifests hack. Some builds fail if the file path does not exist.
+            mkdir -p .repo/local_manifests && cat \<<EOF > .repo/local_manifests/roomservice.xml
+            <?xml version="1.0" encoding="UTF-8"?>
+            <manifest>
+            <!-- dummy -->
+            </manifest>
+            EOF
+
             echo -e "\n Syncing it up! Wait for a few minutes..."
             /tmp/act.sh & repo sync -c -q --force-sync --no-clone-bundle --optimized-fetch --prune --no-tags -j$(nproc --all)
 
@@ -50,14 +59,6 @@ jobs:
 
             git clone https://github.com/rokibhasansagar/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} --single-branch device/${VENDOR}/${CODENAME}
             rm -f device/${VENDOR}/${CODENAME}/vendorsetup.sh
-
-            # Local manifests hack. Some builds fail if the file path does not exist.
-            mkdir -p .repo/local_manifests && cat \<<EOF > .repo/local_manifests/roomservice.xml
-            <?xml version="1.0" encoding="UTF-8"?>
-            <manifest>
-            <!-- dummy -->
-            </manifest>
-            EOF
 
             rm -rf bootable/recovery && git clone https://github.com/TeamWin/android_bootable_recovery -b android-9.0 --depth 1 bootable/recovery
 
