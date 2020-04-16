@@ -41,24 +41,18 @@ jobs:
             cd ../
 
             # Local manifests hack. Some builds fail if the file path does not exist.
-            mkdir -p .repo/local_manifests && cat \<<EOF > .repo/local_manifests/roomservice.xml
+            mkdir -p .repo/local_manifests && cat \<<EOF > .repo/local_manifests/hero2qltechn.xml
             <?xml version="1.0" encoding="UTF-8"?>
             <manifest>
-            <!-- dummy -->
+            	<project path="device/samsung/hero2qltechn" name="rokibhasansagar/twrp_android_device_samsung_hero2qltechn" remote="github" revision="android-6.0" />
             </manifest>
             EOF
 
             echo -e "\n Syncing it up! Wait for a few minutes..."
             /tmp/act.sh & repo sync -c -q --force-sync --no-clone-bundle --optimized-fetch --prune --no-tags -j$(nproc --all)
 
-            #echo "Downloading TWRP Source"
-            #TWRP_SOURCE="https://github.com/PhantomZone54/twrp_sources_norepo/releases/download/v3.3.1-20200222/MinimalOmniRecovery-twrp-6.0-norepo-20200222.tar.xz"
-            #/tmp/act.sh & wget -q ${TWRP_SOURCE} -O twrp.tar.xz
-            #tar -xJf twrp.tar.xz --directory twrp/ && rm twrp.tar.xz
-            #cd twrp/
-
-            git clone https://github.com/rokibhasansagar/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} --single-branch device/${VENDOR}/${CODENAME}
-            rm -f device/${VENDOR}/${CODENAME}/vendorsetup.sh
+            #git clone https://github.com/rokibhasansagar/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} --single-branch device/${VENDOR}/${CODENAME}
+            #rm -f device/${VENDOR}/${CODENAME}/vendorsetup.sh
 
             rm -rf bootable/recovery && git clone https://github.com/TeamWin/android_bootable_recovery -b android-9.0 --depth 1 bootable/recovery
 
