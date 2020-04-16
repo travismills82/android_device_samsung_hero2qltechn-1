@@ -1,0 +1,66 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: fr3akyphantom/droid-builder:latest
+    environment:
+      VENDOR: 'samsung'
+      CODENAME: 'hero2qltechn' 
+    working_directory: /home/builder/work
+    steps:
+      - run:
+          name: Create & Run a keep-alive shell
+          command: |
+            # Basic trick to ping every 5 minutes in the background
+            cat \<< EOF > /tmp/act.sh
+            #!/bin/bash
+            while true; do
+              echo -e "\n" && sleep 300
+            done
+            EOF
+            chmod a+x /tmp/act.sh
+      - run:
+          name: AIO Build
+          command: |
+            echo -en "Current directory is - " && pwd
+            echo "Set GitAuth Infos too"
+            git config --global user.email "rokibhasansagar2014@outlook.com" 
+            git config --global user.name "rokibhasansagar" 
+            git config --global color.ui true
+            mkdir twrp
+            TWRP_SOURCE="https://github.com/PhantomZone54/twrp_sources_norepo/releases/download/v3.3.1-20200222/MinimalOmniRecovery-twrp-6.0-norepo-20200222.tar.xz"
+            ./tmp/act.sh & wget -q ${TWRP_SOURCE} -O twrp.tar.xz
+            tar -xJf twrp.tar.xz --directory twrp/ && rm twrp.tar.xz
+            cd twrp/
+            git clone https://github.com/rokibhasansagar/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} --single-branch device/${VENDOR}/${CODENAME}
+            # Local manifests hack. Some builds fail if the file path does not exist.
+            mkdir -p .repo/local_manifests && cat <<EOF > .repo/local_manifests/roomservice.xml
+            <?xml version="1.0" encoding="UTF-8"?>
+            <manifest>
+            <!-- dummy -->
+            </manifest>
+            EOF
+            rm -rf bootable/recovery && git clone https://github.com/TeamWin/android_bootable_recovery -b android-9.0 --depth 1 bootable/recovery
+            source build/envsetup.sh
+            lunch omni_${CODENAME}-eng
+            echo "Starting the Build Process"
+            echo -en "Current directory is - " && pwd
+            ./tmp/act.sh & make -j$(nproc --all) recoveryimage
+            echo -en "Current directory is - " && pwd
+            export version=$(cat bootable/recovery/variables.h | grep "define TW_MAIN_VERSION_STR" | cut -d '"' -f2) && echo "TWRP $version"
+            export nowTime=$(date +%Y%m%d-%H%M) && echo $nowTime
+            mkdir gh_release
+            cp /home/builder/work/twrp/out/target/product/${CODENAME}/recovery.img /home/builder/work/twrp/gh_release/TWRP-$version-${CODENAME}-$nowTime-Unofficial.img
+            cd /home/builder/work/twrp/
+            wput gh_release/TWRP-$version-${CODENAME}-$nowTime-Unofficial.img ftp://"$FTPUser":"$FTPPass"@"$FTPHost"//TWBuild-$version-$nowTime/
+            ls -la gh_release/ && echo "Releasing..."
+            ghr -t ${GitOAUTHToken} -n "Test Release for ${CODENAME}" -b "TWRP $(echo $version)" -c ${CIRCLE_SHA1} -delete $version gh_release/
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: 'android-6.0'
+          context: personal-envs
