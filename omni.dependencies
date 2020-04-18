@@ -1,8 +1,8 @@
 [
     {
         "remote": "github",
-        "repository": "LineageOS/android_vendor_qcom_opensource_cryptfs_hw",
-        "target_path": "vendor/qcom/opensource/commonsys/cryptfs_hw",
-        "revision": "lineage-15.1"
+        "repository": "TeamWin/android_device_qcom_common",
+        "target_path": "device/qcom/common/cryptfs_hw",
+        "revision": "android-8.1"
     }
 ]
