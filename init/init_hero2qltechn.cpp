@@ -29,7 +29,6 @@
 
 #include <stdlib.h>
 
-#include "vendor_init.h"
 #include "property_service.h"
 #include "util.h"
 
