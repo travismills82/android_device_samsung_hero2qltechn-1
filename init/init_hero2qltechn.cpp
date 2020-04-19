@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2013, The Linux Foundation. All rights reserved.
+   Copyright (c) 2020, The Linux Foundation. All rights reserved.
 
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions are
@@ -27,25 +27,31 @@
    IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdlib.h>
+#include <cstdlib>
+#include <unistd.h>
+#include <fcntl.h>
+#include <android-base/logging.h>
+#include <android-base/properties.h>
 
-#include "vendor_init.h"
 #include "property_service.h"
-#include "util.h"
+#include "log.h"
 
-void vendor_load_properties()
-{
-	char bootloader[PROP_VALUE_MAX];
-
-	property_get("ro.bootloader", bootloader);
-
-	if (strstr(bootloader, "G9350ZH")) {
-		/* Hong Kong */
-		property_set("ro.product.name", "hero2qltezh");
-	} else {
-		/* all other variants become China Open */
-		property_set("ro.product.name", "hero2qltezc");
-	}
-	property_set("ro.product.model", "SM-G9350");
-	property_set("ro.product.device", "hero2qltechn");
+namespace android {
+namespace init {
+void load_properties(const char* bootloader) {
+  property_set("ro.product.name", bootloader);
 }
+void vendor_load_properties() {
+  property_set("ro.product.model", "SM-G9350");
+  property_set("ro.product.device", "hero2qltechn");
+  std::string bootloader = android::base::GetProperty("ro.bootloader", "");
+  if (bootloader == "G9350ZH") {
+    load_properties("hero2qltezh");
+    /* Hong Kong */
+  } else {
+    load_properties("hero2qltezc");
+    /* all other variants become China Open */
+  }
+}
+}  // namespace init
+}  // namespace android

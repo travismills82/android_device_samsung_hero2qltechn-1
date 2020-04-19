@@ -9,11 +9,6 @@ TARGET_BOARD_PLATFORM := msm8996
 TARGET_BOARD_PLATFORM_GPU := qcom-adreno530
 TARGET_PLATFORM_DEVICE_BASE := /devices/soc/
 
-# Flags
-#TARGET_GLOBAL_CFLAGS +=
-#TARGET_GLOBAL_CPPFLAGS +=
-#COMMON_GLOBAL_CFLAGS +=
-
 # Architecture
 TARGET_ARCH := arm64
 TARGET_ARCH_VARIANT := armv8-a
@@ -37,6 +32,8 @@ TARGET_KERNEL_DEVICE_DEFCONFIG := device_hero2qlte_chnzc
 
 TARGET_PREBUILT_KERNEL := $(DEVICE_TREE)/Image.gz
 TARGET_PREBUILT_DTB := $(DEVICE_TREE)/dtb.img
+
+BOARD_KERNEL_SEPARATED_DT := true
 
 # Boot image
 BOARD_KERNEL_CMDLINE := console=null androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 cma=24M@0-0xffffffff rcupdate.rcu_expedited=1
@@ -79,16 +76,19 @@ TW_USE_NEW_MINADBD := true
 
 # Encryption support
 TW_INCLUDE_CRYPTO := true
+#TW_INCLUDE_FBE := true
+#TW_INCLUDE_CRYPTO_FBE := true
 # Disable Qualcomm and Samsung encryption as we are missing msm8996 keystore support
 #TW_INCLUDE_CRYPTO_SAMSUNG := true
 TARGET_HW_DISK_ENCRYPTION := true
 TARGET_KEYMASTER_WAIT_FOR_QSEE := true
+#TARGET_CRYPTFS_HW_PATH := device/qcom/common/cryptfs_hw
 
 # Asian region languages
 TW_EXTRA_LANGUAGES := true
 
 # Debug flags
-#TWRP_INCLUDE_LOGCAT := true
+TWRP_INCLUDE_LOGCAT := true
 #TARGET_USES_LOGD := true
 
 # Init properties from bootloader version, ex. model info

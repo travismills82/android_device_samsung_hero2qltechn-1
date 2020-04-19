@@ -1,0 +1,37 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: fr3akyphantom/droid-builder:latest
+    environment:
+      MANIFEST_BRANCH: 'twrp-8.1'
+      # PBRP_BRANCH: # optional, if not default 'android-9.0', define other bootable_recovery branch
+      VERSION: '2.9.1'
+      VENDOR: 'samsung'
+      CODENAME: 'hero2qltechn'
+      BUILD_LUNCH: 'omni_hero2qltechn-eng'
+      TEST_BUILD: 'true'
+      PB_GO: 'true'
+      PB_ENGLISH: 'true'
+      # EXTRA_CMD: # some required commands like `ls` after `repo sync`, write in single line
+    working_directory: /home/builder/pitchblack
+    steps:
+      - run:
+          name: AIO Build
+          command: |
+            echo "Set GitAuth Infos"
+            git config --global user.email $GitHubMail
+            git config --global user.name $GitHubName
+            git config --global color.ui true
+            wget -q https://gist.github.com/rokibhasansagar/62f90b84f5de4fcb3b1313096710b1aa/raw/build.sh
+            # wget -q https://raw.githubusercontent.com/PitchBlackRecoveryProject/vendor_pb/pb/build.sh
+            source build.sh
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: 'pbrp-8.1'
+          context: personal-envs
